@@ -17,9 +17,34 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`)
 })
 
+// new thread
 client.on('messageCreate', async message => {
-  if (!channelIds.includes(message.channelId) || message.author.bot) return
-  message.channel.send('nice message')
+  if (
+    !channelIds.includes(message.channelId) ||
+    message.author.bot ||
+    message.mentions.users.map((_, id) => id).length !== 1 ||
+    !message.mentions.users.map((_, id) => id).includes(client.user.id) ||
+    message.type.valueOf() === 19
+  ) {
+    return
+  }
+
+  const prompt = message.content.trim().split(' ').slice(1).join(' ')
+  message.reply('start a new thread with prompt: ' + prompt)
 })
 
-client.login(process.env.TOKEN)
+// continue thread
+client.on('messageCreate', async message => {
+  if (
+    !channelIds.includes(message.channelId) ||
+    message.author.bot ||
+    !message.mentions.users.map((_, id) => id).includes(client.user.id) ||
+    message.type.valueOf() !== 19
+  ) {
+    return
+  }
+
+  message.reply('continue thread #<ID> with new prompt: ' + message.content)
+})
+
+client.login(process.env.DISCORD_TOKEN)
