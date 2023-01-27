@@ -1,5 +1,6 @@
 import { client, channelIds } from './discord.js'
-import { threads } from './thread.js'
+import { openai } from './openai.js'
+import { threads } from './threads.js'
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`)
@@ -17,12 +18,26 @@ client.on('messageCreate', async message => {
     return
   }
 
-  const threadId = threads.new(message.id)
-
   const prompt = message.content.trim().split(' ').slice(1).join(' ')
-  const reply = await message.reply(`New Thread ID ${threadId}:\n${prompt}`)
 
-  threads.setLast(threadId, reply.id)
+  const thread = threads.new(message.id, prompt)
+
+  const response = await openai.createCompletion({
+    model: 'text-davinci-003',
+    prompt: threads.prompt(thread.id),
+    temperature: 0.9,
+    max_tokens: 2048
+  })
+
+  if (!response?.data?.choices?.length) return
+
+  const replyText = response.data.choices[0].text.replace('\n\n', '') || ''
+
+  if (!replyText) return
+
+  const reply = await message.reply(replyText)
+
+  threads.setLast(thread.id, reply.id, reply.content)
 })
 
 // continue thread
@@ -39,13 +54,20 @@ client.on('messageCreate', async message => {
   const thread = threads.getThreadByMessageId(message.reference.messageId)
   if (!thread) return
 
-  const threadId = thread.id
+  threads.setLast(thread.id, message.id, message.content)
 
-  const reply = await message.reply(
-    `Continue Thread ID ${threadId}:\n${message.content}`
-  )
+  const response = await openai.createCompletion({
+    model: 'text-davinci-003',
+    prompt: threads.prompt(thread.id),
+    temperature: 0.9,
+    max_tokens: 2048
+  })
 
-  threads.setLast(threadId, reply.id)
+  if (response.data.choices.length === 0) return
+
+  const reply = await message.reply(response.data.choices[0].text)
+
+  threads.setLast(thread.id, reply.id, reply.content)
 })
 
 client.login(process.env.DISCORD_TOKEN)
