@@ -70,4 +70,32 @@ client.on('messageCreate', async message => {
   threads.setLast(thread.id, reply.id, reply.content)
 })
 
+// commands
+client.on('messageCreate', async message => {
+  if (
+    !channelIds.includes(message.channelId) || // don't listen to other channels
+    message.author.bot // don't listen to bots
+  ) {
+    return
+  }
+
+  let replyText = ''
+
+  switch (message.content) {
+    case '!help':
+      replyText = `**Mention** me in a message to start a conversation. **Reply** to my messages to continue the conversation. Make sure to only reply to my **last** message in a given conversation.`
+      break
+
+    case '!threads':
+      replyText = `There are currently **${
+        threads.threads().length
+      }** active threads.`
+      break
+  }
+
+  if (replyText) {
+    message.reply(replyText)
+  }
+})
+
 client.login(process.env.DISCORD_TOKEN)
