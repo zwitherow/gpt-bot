@@ -12,7 +12,7 @@ Mention (@bot-name) with your initial prompt to start a new thread. Reply to the
 
 ## Instructions
 
-Copy 'example.env' to '.env' and replace values.
+Copy `example.env` to `.env` and replace values.
 
 You can change the expiration value in `src/openai.ts` by editing the `ttl` variable.
 
