@@ -1,13 +1,13 @@
 import { v4 as uuid } from 'uuid'
 
+const ttl = 1000 * 60 * 60 * 24 // 24 hours
+
 class Threads {
   private _threads: Thread[] = []
 
   private _prune(): void {
     const now = Date.now()
-    this._threads = this._threads.filter(
-      thread => now - thread.time < 1000 * 60 * 60 * 24
-    )
+    this._threads = this._threads.filter(thread => now - thread.time < ttl)
   }
 
   threads(): Thread[] {
