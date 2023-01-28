@@ -1,5 +1,5 @@
 import { client, channelIds } from './discord.js'
-import { openai } from './openai.js'
+import { createCompletion } from './openai.js'
 import { threads } from './threads.js'
 
 client.on('ready', () => {
@@ -22,16 +22,7 @@ client.on('messageCreate', async message => {
 
   const thread = threads.new(message.id, prompt)
 
-  const response = await openai.createCompletion({
-    model: 'text-davinci-003',
-    prompt: threads.prompt(thread.id),
-    temperature: 0.9,
-    max_tokens: 2048
-  })
-
-  if (!response?.data?.choices?.length) return
-
-  const replyText = response.data.choices[0].text.replace('\n\n', '') || ''
+  const replyText = await createCompletion(threads.prompt(thread.id))
 
   if (!replyText) return
 
@@ -56,16 +47,11 @@ client.on('messageCreate', async message => {
 
   threads.setLast(thread.id, message.id, message.content)
 
-  const response = await openai.createCompletion({
-    model: 'text-davinci-003',
-    prompt: threads.prompt(thread.id),
-    temperature: 0.9,
-    max_tokens: 2048
-  })
+  const replyText = await createCompletion(threads.prompt(thread.id))
 
-  if (response.data.choices.length === 0) return
+  if (!replyText) return
 
-  const reply = await message.reply(response.data.choices[0].text)
+  const reply = await message.reply(replyText)
 
   threads.setLast(thread.id, reply.id, reply.content)
 })
