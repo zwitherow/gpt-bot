@@ -7,6 +7,7 @@ Mention (@bot-name) with your initial prompt to start a new thread. Reply to the
 ## Commands
 
 `!help` - Displays help text
+
 `!threads` - Show number of active threads
 
 ## Instructions
