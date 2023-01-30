@@ -1,5 +1,5 @@
 import { client, channelIds } from './discord.js'
-import { createCompletion } from './openai.js'
+import { createCompletion, createImage } from './openai.js'
 import { threads } from './threads.js'
 
 client.on('ready', () => {
@@ -67,7 +67,7 @@ client.on('messageCreate', async message => {
 
   let replyText = ''
 
-  switch (message.content) {
+  switch (message.content.split(' ')[0]) {
     case '!help':
       replyText = `**Mention** me in a message to start a conversation. **Reply** to my messages to continue the conversation. Make sure to only reply to my **last** message in a given conversation.`
       break
@@ -76,6 +76,11 @@ client.on('messageCreate', async message => {
       replyText = `There are currently **${
         threads.threads().length
       }** active threads.`
+      break
+
+    case '!image':
+      const prompt = message.content.trim().split(' ').slice(1).join(' ')
+      replyText = await createImage(prompt)
       break
   }
 
