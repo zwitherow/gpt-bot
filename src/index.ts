@@ -81,7 +81,12 @@ client.on('messageCreate', async message => {
     case '!image':
       const prompt = message.content.trim().split(' ').slice(1).join(' ')
       if (prompt) {
-        replyText = await createImage(prompt)
+        const result = await createImage(prompt)
+        if (result instanceof Buffer) {
+          message.reply({ files: [result] })
+        } else {
+          message.reply(result)
+        }
         break
       } else {
         replyText = `Please provide a prompt.`

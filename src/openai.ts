@@ -28,7 +28,7 @@ export const createCompletion = async (
   }
 }
 
-export const createImage = async (prompt: string): Promise<string> => {
+export const createImage = async (prompt: string): Promise<Buffer | string> => {
   try {
     const response = await openai.createImage({
       prompt,
@@ -38,7 +38,15 @@ export const createImage = async (prompt: string): Promise<string> => {
 
     const image_url = response?.data?.data[0].url
 
-    return image_url ? image_url : 'Error: No response'
+    if (!image_url) return 'Error: No response'
+
+    const image = await fetch(image_url)
+
+    if (!image.ok) return 'Error: No response'
+
+    const blob = await image.blob()
+
+    return Buffer.from(await blob.arrayBuffer())
   } catch (error) {
     return 'Error: ' + error.message ? error.message : 'Unknown error'
   }
