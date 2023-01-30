@@ -80,7 +80,12 @@ client.on('messageCreate', async message => {
 
     case '!image':
       const prompt = message.content.trim().split(' ').slice(1).join(' ')
-      replyText = await createImage(prompt)
+      if (prompt) {
+        replyText = await createImage(prompt)
+        break
+      } else {
+        replyText = `Please provide a prompt.`
+      }
       break
   }
 

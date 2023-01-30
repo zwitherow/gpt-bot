@@ -6,6 +6,8 @@ Mention (@bot-name) with your initial prompt to start a new thread. Reply to the
 
 ## Commands
 
+`!image a dog riding a skateboard` - Generate an image
+
 `!help` - Displays help text
 
 `!threads` - Show number of active threads
